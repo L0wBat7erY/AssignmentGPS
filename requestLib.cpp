@@ -14,4 +14,7 @@
 
 void loadRequests(char* fName, L1List<VM_Request> &rList) {
     // TODO: write your code to load requests. Each request is separated by a whitespace
+    
+    
+    
 }
