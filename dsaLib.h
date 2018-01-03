@@ -46,6 +46,10 @@ class L1List {
 public:
     L1List() : _pHead(NULL), _size(0) {}
     ~L1List() {};
+    
+    L1Item<T>*  getHead() {
+        return _pHead;
+    }
 
     void    clean();
     bool    isEmpty() {
@@ -441,7 +445,7 @@ protected:
     bool balanceLeft(AVLNode<T>* &pR) {
         if(pR->_bFactor==0) { pR->_bFactor=-1; return true; }
         if(pR->_bFactor==1) { pR->_bFactor=0; return false; }
-        if(pR->_pLeft->_bFactor==-1){
+        if(pR->_pLeft->_bFactor==-1) {
             rotRight(pR);
             pR->_bFactor=pR->_pRight->_bFactor=0;
             return false;
@@ -462,7 +466,7 @@ protected:
     bool balanceRight(AVLNode<T>* &pR) {
         if(pR->_bFactor==0) { pR->_bFactor=1; return true; }
         if(pR->_bFactor==-1) { pR->_bFactor=0; return false; }
-        if(pR->_pRight->_bFactor==1){
+        if(pR->_pRight->_bFactor==1) {
             rotLeft(pR);
             pR->_bFactor=pR->_pLeft->_bFactor=0;
             return false;

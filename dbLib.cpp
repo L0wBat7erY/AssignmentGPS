@@ -39,7 +39,7 @@ void loadVMDB(char* fName, L1List<VM_Record> &db) {
 
         while (getline(inFile , line)) {
             /// On Windows, lines on file ends with \r\n. So you have to remove \r
-            if (line[line.length() - 1] == '\r')
+            if (line[line.length() - 1] == '\n')
                 line.erase(line.length() - 1);
             if (line.length() > 0) {
                 if (parseVMRecord((char*)line.data(), db[0]))/// parse and store data directly

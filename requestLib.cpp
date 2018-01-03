@@ -15,6 +15,20 @@
 void loadRequests(char* fName, L1List<VM_Request> &rList) {
     // TODO: write your code to load requests. Each request is separated by a whitespace
     
+    VM_Request requestNode;
+    ifstream request;
+    request.open(fName);
+    while(!request.eof()) {
+        request>>requestNode.code;
+        rList.insertHead(requestNode);
+    }
+    string last_request;
+    last_request = rList.getHead()->data.code;
+    rList.getHead()->data.code[last_request.length()-1] = '\0';
     
+    //cout<<rList.getHead()->data.code<<endl;
+    
+    rList.reverse();
+    request.close();
     
 }

@@ -24,7 +24,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#define REQUEST_CODE_SIZE     16
+#define REQUEST_CODE_SIZE     50
 #define MAX_PARAM_SIZE         6
 using namespace std;
 
@@ -62,5 +62,6 @@ typedef struct VM_Request {
 };
 
 void loadRequests(char* fName, L1List<VM_Request> &);
+
 
 #endif //DSA171A2_REQUESTLIB_H

@@ -64,4 +64,14 @@ void releaseVMGlobalData(void* pGData);
 
 void process(L1List<VM_Request>& requestList, L1List<VM_Record>& recordList);
 
+void request_1(string req, L1List<VM_Record> &);
+void request_2(string req, L1List<VM_Record> &);
+void request_3(string req, L1List<VM_Record> &);
+void request_4(string req, L1List<VM_Record> &);
+void request_5(string req, L1List<VM_Record> &);
+void request_6(string req, L1List<VM_Record> &);
+void request_7(string req, L1List<VM_Record> &);
+void request_8(string req, L1List<VM_Record> &);
+void request_9(string req, L1List<VM_Record> &);
+
 #endif //DSA171A2_DBLIB_H
