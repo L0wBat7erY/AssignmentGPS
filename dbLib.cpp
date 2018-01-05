@@ -59,6 +59,48 @@ void loadVMDB(char* fName, L1List<VM_Record> &db) {
 bool parseVMRecord(char *pBuf, VM_Record &bInfo) {
     // TODO: write code to parse a record from given line
     
+    char subStr[64];
+    int i=0, j=0;
+    int counter = 0;
+    while(pBuf[j]) {
+        if(pBuf[j]==',') {
+            switch(counter) {
+                case 2: ///VEHICLE_TAG
+                    if(j-i<4) {
+                        memset(bInfo.id, '0', 4);
+                        bInfo.id[4] = 0;
+                        strncpy( bInfo.id + 4 - j + i, pBuf + i, (size_t)(j-i));
+                    }
+                    else {
+                        strncpy( bInfo.id, pBuf + i, (size_t)(j-i));
+                        bInfo.id[j-i] = '\0';
+                    }
+                    break;
+                case 1: ///REPORT_TIME
+                    strncpy(subStr, pBuf + i, (size_t)(j-i));
+                    subStr[j-i] = '\0';
+                    struct tm tm;
+                    memset(&tm, 0, sizeof(struct tm));
+                    strptime(subStr, "%m/%d/%Y %H:%M:%S", &tm); ////parse string
+                    tm.tm_isdst = -1;///NOTE
+                    bInfo.timestamp = timegm(&tm);  ////mktime(&tm) ///make time
+                    break;
+                case 3: ///LONGITUDE
+                    strncpy(subStr, pBuf + i, (size_t)(j-i));
+                    subStr[j-i] = '\0';
+                    bInfo.longitude = atof(subStr);
+                    break;
+                case 4: ///LATITUDE
+                    strncpy(subStr, pBuf + i, (size_t)(j-i));
+                    subStr[j-i] = '\0';
+                    bInfo.latitude = atof(subStr);
+                    break;
+                    
+            }
+            counter++;
+        }
+    }
+    
     return true;
 }
 
