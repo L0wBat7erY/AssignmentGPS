@@ -15,7 +15,6 @@ using namespace std;
 
 #define GPS_DISTANCE_ERROR 0.005
 
-
 bool initVMGlobalData(void** pGData) {
     // TODO: allocate and initialize global data
     // return false if failed
@@ -27,8 +26,29 @@ void releaseVMGlobalData(void* pGData) {
 
 }
 
+bool shorterID(VM_Record& a, VM_Record& b) {
+    if(strcmp(a.id, b.id)<0) return true;
+    else return false;
+}
+
 bool processRequest(VM_Request &request, L1List<VM_Record> &recordList, void *pGData) {
     // TODO: Your code goes here
+    
+    
+    AVLTree<VM_Record>* pTree = NULL;
+    L1Item<VM_Record>* p = recordList.getHead();
+    L1Item<VM_Record>* phead = recordList.getHead();
+    while (p) {
+        if(strcmp(phead->data.id, p->data.id)!=0) break;
+        p=p->pNext;
+    }
+    
+    //p->data.id
+    
+    pTree->insert(phead->data, shorterID);
+    
+    
+    
     
     string req;
     req = request.code;
@@ -85,17 +105,33 @@ bool processRequest(VM_Request &request, L1List<VM_Record> &recordList, void *pG
 void request_1(string req, L1List<VM_Record> &recordList) {
     int i=2, n=0;
     char ID1[ID_MAX_LENGTH], ID2[ID_MAX_LENGTH];
+    char Tag_ID1[ID_MAX_LENGTH], Tag_ID2[ID_MAX_LENGTH];
     while(i<ID_MAX_LENGTH) {
         ID1[n] = req[i];
-        if(req[i]=='_') {  ID1[n] = '\0'; n=0; i++; break;  }
+        if(req[i]=='_') {
+            ID1[n] = '\0';
+            if(n<4) {
+                memset(Tag_ID1, '0', 4);
+                Tag_ID1[4] = 0;
+                strncpy(Tag_ID1 + 4 - n, ID1, 4);
+            }
+            n=0; i++; break;  }
         i++; n++;
     }
     while (i<ID_MAX_LENGTH) {
         ID2[n] = req[i];
-        if(req[i]=='_') {  ID2[n] = '\0'; n=0; i++; break;  }
+        if(req[i]=='_') {
+            ID2[n] = '\0';
+            if(n<4) {
+                memset(Tag_ID2, '0', 4);
+                Tag_ID2[4] = 0;
+                strncpy(Tag_ID2 + 4 - n, ID2, 4);
+            }
+            n=0; i++; break;
+        }
         i++; n++;
     }
-    //cout<<ID1<<" "<<ID2<<endl;
+    cout<<Tag_ID1<<" "<<Tag_ID2<<endl;
     int hh, mm, ss;
     char hours[3], min[3], second[3];
     hours[0] = req[i]; i++; hours[1] = req[i]; i++; hours[2] = '\0';
@@ -104,6 +140,25 @@ void request_1(string req, L1List<VM_Record> &recordList) {
     mm = atoi(min);
     second[0] = req[i]; i++; second[1] = req[i]; i++; second[2] = '\0';
     ss = atoi(second);
+    
+    struct tm time;
+    time.tm_hour = hh;
+    time.tm_min = mm;
+    time.tm_sec = ss;
+    
+    //AVLTree<L1Item<VM_Record>>* pR = nullptr;
+    //int address;
+    L1Item<VM_Record>* p = recordList.getHead();
+    while (p) {
+        if(strcmp(Tag_ID1, p->data.id)==0) {
+            //if(p->data.timestamp)
+            break;
+        }
+        p = p->pNext;
+    }
+    
+    
+    
     cout<<endl;
 }
 
@@ -115,10 +170,23 @@ void request_2(string req, L1List<VM_Record> &recordList) {
         if(req[i]=='_') {  temp_long[n] = '\0'; n=0; i++; break;  }
         i++; n++;
     }
-    //double longtemp = atof(temp_long);
+    double longtemp = atof(temp_long);
     string direction;
     direction = req[i];
-    cout<<endl;
+    
+    int demsoluong=0;
+    L1Item<VM_Record>* p = recordList.getHead();
+    while(p) {
+        if(direction=="W") {
+            if(p->data.longitude - longtemp < 0) demsoluong++;
+        }
+        if(direction=="E") {
+            if(p->data.longitude - longtemp >= 0) demsoluong++;
+        }
+        p=p->pNext;
+    }
+    if(demsoluong==0) cout<<"Invalid request"<<endl;
+    else cout<<demsoluong<<endl;
 }
 
 void request_3(string req, L1List<VM_Record> &recordList) {
@@ -129,10 +197,25 @@ void request_3(string req, L1List<VM_Record> &recordList) {
         if(req[i]=='_') {  temp_lat[n] = '\0'; n=0; i++; break;  }
         i++; n++;
     }
-    //double lat_temp = atof(temp_lat);
+    double lat_temp = atof(temp_lat);
     string direction;
     direction = req[i];
-    cout<<endl;
+    
+    int demsoluong=0;
+    L1Item<VM_Record>* p = recordList.getHead();
+    while(p) {
+        if(direction=="N") {
+            if(p->data.latitude - lat_temp >= 0) demsoluong++;
+        }
+        if(direction=="S") {
+            if(p->data.latitude - lat_temp < 0) demsoluong++;
+        }
+        //if(direction!="W" && direction!="E") demsoluong=0;
+        p=p->pNext;
+    }
+    
+    if(demsoluong==0) cout<<"Invalid request"<<endl;
+    else cout<<demsoluong<<endl;
 }
 
 void request_4(string req, L1List<VM_Record> &recordList) {
@@ -160,7 +243,7 @@ void request_4(string req, L1List<VM_Record> &recordList) {
     h1[0] = req[i]; i++; h1[1] = req[i]; i++; h1[2] = '\0'; i++;
     h2[0] = req[i]; i++; h2[1] = req[i]; i++; h2[2] = '\0'; i++;
     int hour_begin = atoi(h1), hour_end = atoi(h2);
-    //cout<<Along<<" "<<Alat<<" "<<r<<" "<<hour_begin<<" "<<hour_end<<endl;
+    cout<<Along<<" "<<Alat<<" "<<r<<" "<<hour_begin<<" "<<hour_end<<endl;
     cout<<endl;
 }
 
@@ -191,6 +274,7 @@ void request_5(string req, L1List<VM_Record> &recordList) {
         i++; n++;
     }
     double r = atof(ban_kinh);
+    cout<<Along<<" "<<Alat<<" "<<r<<" ";
     cout<<endl;
 }
 
@@ -221,6 +305,8 @@ void request_6(string req, L1List<VM_Record> &recordList) {
     hh = atoi(hours);
     min[0] = req[i]; i++; min[1] = req[i]; i++; min[2] = '\0';
     mm = atoi(min);
+    
+    cout<<Along<<" "<<Alat<<" "<<num<<" ";
     cout<<endl;
 }
 
@@ -258,7 +344,8 @@ void request_7(string req, L1List<VM_Record> &recordList) {
     hh = atoi(hours);
     min[0] = req[i]; i++; min[1] = req[i]; i++; min[2] = '\0';
     mm = atoi(min);
-    //cout<<Along<<" "<<Alat<<" "<<num<<" "<<r<<" "<<hh<<" "<<mm;
+    
+    cout<<Along<<" "<<Alat<<" "<<num<<" "<<r<<" "<<hh<<" "<<mm;
     cout<<endl;
 }
 
@@ -289,7 +376,8 @@ void request_8(string req, L1List<VM_Record> &recordList) {
     hh = atoi(hours);
     min[0] = req[i]; i++; min[1] = req[i]; i++; min[2] = '\0';
     mm = atoi(min);
-    //cout<<Along<<" "<<Alat<<" "<<r<<" "<<hh<<" "<<mm;
+    
+    cout<<Along<<" "<<Alat<<" "<<r<<" "<<hh<<" "<<mm;
     cout<<endl;
 }
 
@@ -320,6 +408,9 @@ void request_9(string req, L1List<VM_Record> &recordList) {
     hh = atoi(hours);
     min[0] = req[i]; i++; min[1] = req[i]; i++; min[2] = '\0';
     mm = atoi(min);
-    //cout<<Along<<" "<<Alat<<" "<<r<<" "<<hh<<" "<<mm;
+    
+    
+    cout<<Along<<" "<<Alat<<" "<<r<<" "<<hh<<" "<<mm;
     cout<<endl;
 }
+

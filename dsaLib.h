@@ -299,19 +299,25 @@ class AVLTree {
 public:
     AVLTree() : _pRoot(NULL) {}
     ~AVLTree() { destroy(_pRoot); }
+    
+    AVLNode<T>* getpRoot() {
+        return _pRoot;
+    }
 
     bool find(T& key, T* &ret) { return find(_pRoot, key, ret); }
-    bool insert(T& key) { return insert(_pRoot, key); }
+    bool insert(T& key, bool(*op)(T&, T&)) { return insert(_pRoot, key, op); }
     bool remove(T& key) { return remove(_pRoot, key); }
     void traverseNLR(void (*op)(T&)) { traverseNLR(_pRoot, op); }
     void traverseLNR(void (*op)(T&)) { traverseLNR(_pRoot, op); }
     void traverseLRN(void (*op)(T&)) { traverseLRN(_pRoot, op); }
+    
 
 protected:
     
 ///////// Destroy pRoot ///////////////////////////////////////////////////////////
     
     void destroy(AVLNode<T>* &pR) {
+        if(pR!=NULL) pR==NULL;
         return;
     }
     
@@ -323,16 +329,16 @@ protected:
     
 ///////// Insert Data in AVL tree //////////////////////////////////////////////////
     
-    bool insert(AVLNode<T>* &pR, T& a) {
+    bool insert(AVLNode<T>* &pR, T& a, bool(*op)(T&, T&)) {
         if(pR==NULL) { pR = new AVLNode<T>(a); return true; }
-        if(a<pR->data)
+        if(op(a, pR->_data)==true)
         {
-            if(insert(pR->_pLeft, a)==false) return false;
+            if(insert(pR->_pLeft, a, op)==false) return false;
             return balanceLeft(pR);
         }
         else
         {
-            if(insert(pR->_pRight, a)==false) return false;
+            if(insert(pR->_pRight, a, op)==false) return false;
             return balanceRight(pR);
         }
     }
@@ -341,14 +347,14 @@ protected:
     
     bool remove(AVLNode<T>* &pR, T& a) {
         if(pR==NULL) return false;
-        if(a<pR->data)
+        if(a-pR->_data<0)
         {
             if(remove(pR->_pLeft, a)==false) return false;
             if(pR->_bFactor==-1) { pR->_bFactor=0; return true; }
             if(pR->_bFactor==0) { pR->_bFactor=1; return false; }
             return !balanceRight(pR);
         }
-        if(a>pR->data)
+        if(a-pR->_data>0)
         {
             if(remove(pR->_pRight, a)==false) return false;
             if(pR->_bFactor==1) { pR->_bFactor=0; return true; }
@@ -375,8 +381,8 @@ protected:
         }
         AVLNode<T>* p=pR->_pRight;
         while(p->_pLeft) p = p->_pLeft;
-        pR->data = p->data;
-        if(remove(p->data, pR->_pRight))
+        pR->_data = p->_data;
+        if(remove(p->_data, pR->_pRight))
         {
             if(pR->_bFactor==1) { pR->_bFactor=0; return true; }
             if(pR->_bFactor==0) { pR->_bFactor=-1; return false; }
@@ -481,7 +487,10 @@ protected:
         pR->_pLeft->_bFactor=1;
         return false;
     }
+   
 };
+
+
 
 
 
