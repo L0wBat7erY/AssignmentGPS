@@ -284,6 +284,7 @@ template <class T>
 struct AVLNode {
     T           _data;
     AVLNode<T>   *_pLeft, *_pRight;
+    AVLNode<T>   *pNext;
 #ifdef AVL_USE_HEIGHT
     int         _height;
     AVLNode(T &a) : _data(a), _pLeft(NULL), _pRight(NULL), _height(1) {}
@@ -304,7 +305,7 @@ public:
         return _pRoot;
     }
 
-    bool find(T& key, T* &ret) { return find(_pRoot, key, ret); }
+    T*   find(T& key, bool (*op1)(T&, T&), bool (*op2)(T&, T&))  { return find(_pRoot, key, op1, op2); }
     bool insert(T& key, bool(*op)(T&, T&)) { return insert(_pRoot, key, op); }
     bool remove(T& key) { return remove(_pRoot, key); }
     void traverseNLR(void (*op)(T&)) { traverseNLR(_pRoot, op); }
@@ -317,14 +318,19 @@ protected:
 ///////// Destroy pRoot ///////////////////////////////////////////////////////////
     
     void destroy(AVLNode<T>* &pR) {
-        if(pR!=NULL) pR==NULL;
-        return;
+        if (pR == NULL) return;
+        Destroy(pR->pLeft);
+        Destroy(pR->pRight);
+        delete pR;
     }
     
 ///////// Find data in AVL tree //////////////////////////////////////////////////
     
-    bool find(AVLNode<T> *pR, T& key, T* &ret) {
-        return true;
+    T* find(AVLNode<T>* pR, T& a, bool (*op1)(T&, T&), bool (*op2)(T&, T&)) {
+        if (pR == NULL) return NULL;
+        else if (op1(a, pR->_data) == true) return find(pR->_pLeft, a, op1, op2);
+        else if (op2(a , pR->_data) == true) return find(pR->_pRight, a, op1, op2);
+        else return &pR->_data;
     }
     
 ///////// Insert Data in AVL tree //////////////////////////////////////////////////

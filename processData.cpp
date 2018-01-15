@@ -30,24 +30,28 @@ bool shorterID(VM_Record& a, VM_Record& b) {
     if(strcmp(a.id, b.id)<0) return true;
     else return false;
 }
+bool tallerID(VM_Record& a, VM_Record& b) {
+    if(strcmp(a.id, b.id)>=0) return true;
+    else return false;
+}
+bool different_ID(VM_Record& a, VM_Record& b) {
+    if(strcmp(a.id, b.id)!=0) return true;
+    else return false;
+}
+
 
 bool processRequest(VM_Request &request, L1List<VM_Record> &recordList, void *pGData) {
     // TODO: Your code goes here
     
     
-    AVLTree<VM_Record>* pTree = NULL;
+    AVLTree<VM_Record>* pTreeListID = new AVLTree<VM_Record>;   ///Tree AVL have list of many ID
     L1Item<VM_Record>* p = recordList.getHead();
-    L1Item<VM_Record>* phead = recordList.getHead();
+    
+    pTreeListID->insert(p->data, shorterID);
     while (p) {
-        if(strcmp(phead->data.id, p->data.id)!=0) break;
+        if(strcmp(p->data.id, pTreeListID->find(p->data, shorterID, shorterID)->id) != 0) pTreeListID->insert(p->data, shorterID);
         p=p->pNext;
     }
-    
-    //p->data.id
-    
-    pTree->insert(phead->data, shorterID);
-    
-    
     
     
     string req;
@@ -146,16 +150,7 @@ void request_1(string req, L1List<VM_Record> &recordList) {
     time.tm_min = mm;
     time.tm_sec = ss;
     
-    //AVLTree<L1Item<VM_Record>>* pR = nullptr;
-    //int address;
-    L1Item<VM_Record>* p = recordList.getHead();
-    while (p) {
-        if(strcmp(Tag_ID1, p->data.id)==0) {
-            //if(p->data.timestamp)
-            break;
-        }
-        p = p->pNext;
-    }
+    
     
     
     
